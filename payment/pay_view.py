@@ -40,7 +40,6 @@ def checkout_session_view(request):
         plan_id = data.get('plan_id', None)
         plan = PaymentPlans.objects.get(id=plan_id)
         # check if user already has a customer assosciated, otherwise create it
-	user = request.user
 	if not StripeCustomers.objects.get(email=request.user.email):
             stripe_customer = stripe.Customer.create(email=request.user.email)
             customer = StripeCustomers.objects.create(
