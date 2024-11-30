@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-=xsc0p)$#q6ajjwx_0dtk4u2q%psz)#y2w6)u+ai@vy$kfw2g$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG',cast=bool)
 
 ALLOWED_HOSTS = ['*']
 
@@ -177,5 +177,5 @@ CORS_ORIGIN_ALLOW_ALL = True
 ## ----STRIPE INTEGRATION --------
 STRIPE_SECRET_KEY=config('STRIPE_SECRET_KEY')
 STRIPE_PUBLISHABLE_KEY=config('STRIPE_PUBLISHABLE_KEY')
-STRIPE_ENDPOINT_SECRET="whsec_pqrDtVZnpYLjIjRCXSGYV7sErlvOndIG"
+STRIPE_ENDPOINT_SECRET=config('STRIPE_ENDPOINT_SECRET')
 CLIENT_URL=config('CLIENT_URL')
