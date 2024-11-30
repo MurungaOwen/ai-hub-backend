@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
 import stripe
+from django.utils.timezone import now
 from decouple import config
 from .models import StripeCustomers, PaymentPlans
 from django.contrib.auth import get_user_model
@@ -55,7 +56,7 @@ def checkout_session_view(request):
             )
         customer = request.user.customer
         # Check if user has an active subscription
-        if customer.current_plan and customer.current_plan.status == 'active':
+        if customer.current_plan and customer.subscription_end and customer.subscription_end > now():
             return Response({'error': 'You already have an active subscription'},
                             status=status.HTTP_400_BAD_REQUEST)
 
