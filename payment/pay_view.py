@@ -5,8 +5,10 @@ from django.conf import settings
 import stripe
 from decouple import config
 from .models import StripeCustomers, PaymentPlans
+from django.contrib.auth import get_user_model
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+
 
 checkout_session_request_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
@@ -38,7 +40,8 @@ def checkout_session_view(request):
         plan_id = data.get('plan_id', None)
         plan = PaymentPlans.objects.get(id=plan_id)
         # check if user already has a customer assosciated, otherwise create it
-        if not request.user.customer:
+	user = request.user
+	if not StripeCustomers.objects.get(email=request.user.email):
             stripe_customer = stripe.Customer.create(email=request.user.email)
             customer = StripeCustomers.objects.create(
                 user=request.user, stripe_customer_id=stripe_customer.id,
