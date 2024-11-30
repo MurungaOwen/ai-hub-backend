@@ -40,14 +40,13 @@ def checkout_session_view(request):
         plan_id = data.get('plan_id', None)
         plan = PaymentPlans.objects.get(id=plan_id)
         # check if user already has a customer assosciated, otherwise create it
-	    if not StripeCustomers.objects.get(email=request.user.email):
+        if not StripeCustomers.objects.get(email=request.user.email):
             stripe_customer = stripe.Customer.create(email=request.user.email)
             customer = StripeCustomers.objects.create(
                 user=request.user, stripe_customer_id=stripe_customer.id,
                 current_plan=plan
             )
             customer.save()
-
         current_subscription = request.user.customer
 
         # our app does not support multiple subscriptions per user
