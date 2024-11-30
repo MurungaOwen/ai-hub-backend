@@ -47,13 +47,13 @@ def checkout_session_view(request):
 
         # Check or create Stripe customer
         try:
-            customer = StripeCustomers.objects.get(user=request.user)
+            StripeCustomers.objects.get(user=request.user)
         except StripeCustomers.DoesNotExist:
             stripe_customer = stripe.Customer.create(email=request.user.email)
-            customer = StripeCustomers.objects.create(
+            StripeCustomers.objects.create(
                 user=request.user, stripe_customer_id=stripe_customer.id, current_plan=plan
             )
-        
+        customer = request.user.customer
         # Check if user has an active subscription
         if customer.current_plan and customer.current_plan.status == 'active':
             return Response({'error': 'You already have an active subscription'},
