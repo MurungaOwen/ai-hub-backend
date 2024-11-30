@@ -101,6 +101,22 @@ class UserQuizResponseSerializer(serializers.ModelSerializer):
         fields = ['question_id', 'is_correct']
 
 class UserSerializer(serializers.ModelSerializer):
+    subscription_end = serializers.SerializerMethodField()
+    current_plan = serializers.SerializerMethodField()
     class Meta:
         model = CustomUser
-        fields = ['username', 'email', 'first_name', 'last_name', 'is_premium']
+        fields = ['username', 'email', 'first_name', 'last_name', 'is_premium', 'subscription_end', 'current_plan']
+    
+    def get_subscription_end(self, obj):
+        if obj.is_premium:
+            return obj.customer.subscription_end
+        return None
+        
+    
+    def get_current_plan(self, obj):
+        if obj.is_premium:
+            return {
+                "id": obj.customer.current_plan.id,
+                "name": obj.customer.current_plan.name
+            }
+        return None
