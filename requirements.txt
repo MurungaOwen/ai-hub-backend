@@ -1,0 +1,17 @@
+dj-database-url
+Django
+django-cors-headers
+djangorestframework
+djangorestframework-simplejwt
+drf-yasg
+pillow
+psycopg2
+PyJWT
+python-decouple
+pytz
+PyYAML
+requests
+gunicorn
+stripe
+youtube-transcript-api
+whitenoise

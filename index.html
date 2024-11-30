@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Page</title>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <h1>Checkout</h1>
+    <form id="checkout-form">
+        <button type="submit">Proceed to Checkout</button>
+    </form>
+
+    <script>
+        // Initialize Stripe
+        const stripe = Stripe("pk_test_51QOic8HJIBuDrsc6S0pcgQuwq3yn9HMCj5m0PX9gtkTQLZna15nl7qOMo4aTjZzQu6HdU9Om9BqNWEz2sgpNJY6G00LFSBJotX"); // Replace with your actual publishable key
+
+        const form = document.getElementById('checkout-form');
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            // Get the selected plan ID
+            const planId = '8bb5da8e-16eb-4b24-964b-7f10f43fad01'
+
+            // Send a POST request to your API with the plan_id
+            const response = await fetch('https://kwk0zm9j-8000.uks1.devtunnels.ms/api/v1/payment/checkout/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzMyNzA4NzI3LCJpYXQiOjE3MzI3MDUxMjcsImp0aSI6IjcwMzM0Yjk0ZGZmMzQ2NjNiNjk4Y2ZhZGJmMDczNjJiIiwidXNlcl9pZCI6MX0.OTM-nYt5H7yWs9DE33EfsUC-ssmacTXt0VdgC1Bp8v8`,
+                },
+                body: JSON.stringify({ plan_id: planId }),
+            });
+            const responseData = await response.json()
+            if (response.ok) {
+                // Redirect the user to Stripe Checkout
+                window.location.href=responseData.url;
+            } else {
+                alert('Error: ' + session.error);
+            }
+        });
+    </script>
+</body>
+</html>

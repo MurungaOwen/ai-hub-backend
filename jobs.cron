@@ -1,0 +1,4 @@
+# Run the fetch_ai_news command every 7 days
+0 0 */7 * * root python /app/manage.py fetch_news >> /var/log/cron.log 2>&1
+# Sample cron job to run the update_premium command daily at midnight
+0 0 * * * root python /app/manage.py update_premium >> /var/log/cron.log 2>&1
