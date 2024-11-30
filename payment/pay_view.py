@@ -38,23 +38,28 @@ def checkout_session_view(request):
         stripe.api_key = config('STRIPE_SECRET_KEY')
         data = request.data
         plan_id = data.get('plan_id', None)
-        plan = PaymentPlans.objects.get(id=plan_id)
-        # check if user already has a customer assosciated, otherwise create it
-        if not StripeCustomers.objects.get(user=request.user):
+        
+        # Validate the plan exists
+        try:
+            plan = PaymentPlans.objects.get(id=plan_id)
+        except PaymentPlans.DoesNotExist:
+            return Response({'error': 'Invalid plan ID'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check or create Stripe customer
+        try:
+            customer = StripeCustomers.objects.get(user=request.user)
+        except StripeCustomers.DoesNotExist:
             stripe_customer = stripe.Customer.create(email=request.user.email)
             customer = StripeCustomers.objects.create(
-                user=request.user, stripe_customer_id=stripe_customer.id,
-                current_plan=plan
+                user=request.user, stripe_customer_id=stripe_customer.id, current_plan=plan
             )
-            customer.save()
-        current_subscription = request.user.customer
-
-        # our app does not support multiple subscriptions per user
-
-        if current_subscription and current_subscription.status == 'active':
+        
+        # Check if user has an active subscription
+        if customer.current_plan and customer.current_plan.status == 'active':
             return Response({'error': 'You already have an active subscription'},
                             status=status.HTTP_400_BAD_REQUEST)
 
+        # Create a checkout session
         session = stripe.checkout.Session.create(
             line_items=[
                 {
@@ -63,15 +68,14 @@ def checkout_session_view(request):
                 },
             ],
             mode='subscription',
-            success_url=settings.CLIENT_URL + '/checkout/success',
-            cancel_url=settings.CLIENT_URL + '/checkout/canceled',
-            #automatic_tax={'enabled': True}, since we havent setup tax yet
-            customer=request.user.customer.stripe_customer_id,
+            success_url=f"{settings.CLIENT_URL}/checkout/success",
+            cancel_url=f"{settings.CLIENT_URL}/checkout/canceled",
+            customer=customer.stripe_customer_id,
             customer_update={
-                'address': 'auto' # let stripe handle the address
-            }
+                'address': 'auto',  # Let Stripe handle the address
+            },
         )
+        return Response({'url': session.url}, status=status.HTTP_201_CREATED)
+
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    
-    return Response({'url': session.url}, status=status.HTTP_201_CREATED)
