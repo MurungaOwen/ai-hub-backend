@@ -52,7 +52,7 @@ class StripeWebhookView(APIView):
     def handle_payment_success(self, event):
         stripe_subscription = stripe.Subscription.retrieve(event['data']['object']['id'])
         customer = StripeCustomers.objects.get(stripe_customer_id=stripe_subscription.customer)
-        customer.subscription_start=timezone.make_aware(datetime.fromtimestamp(stripe_subscription.created))
+        customer.subscription_start=timezone.now()
         customer.subscription_end = timezone.make_aware(datetime.fromtimestamp(stripe_subscription.current_period_end))
         customer.status='active'
         customer.save()

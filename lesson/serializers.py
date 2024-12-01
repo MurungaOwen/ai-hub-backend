@@ -117,6 +117,8 @@ class UserSerializer(serializers.ModelSerializer):
         if obj.is_premium:
             return {
                 "id": obj.customer.current_plan.id,
-                "name": obj.customer.current_plan.name
+                "name": obj.customer.current_plan.name,
+                "price": obj.customer.current_plan.price,
+                "subscription_start": obj.customer.subscription_start
             }
         return None
